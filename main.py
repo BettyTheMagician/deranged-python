@@ -1,6 +1,8 @@
 from server import server
 from client import client
+
 from colorama import Fore, Back, Style
+
 import os
 
 #https://pypi.org/project/bitcoinrpc/ Future referencing for handling BTC payments.
@@ -18,6 +20,7 @@ def banner() -> None:
 '''    
 	print(topBanner)                                                             
 
+
 def Userinterface() -> bool:
 	banner()
 	choice = input(Fore.GREEN + 'Do you wish to host or connect? c/s:  ')
@@ -33,7 +36,7 @@ def main() -> None:
 		try:
 			Userinterface()
 		except Exception as e:
-			print(Fore.RED + 'An error occurred {e}')
+			print(Fore.RED + f'An error occurred {e}')
 
 
 if __name__ == '__main__':

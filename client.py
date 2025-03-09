@@ -1,6 +1,10 @@
 import socket, threading
+
 import time 
+
 from colorama import Fore, Back, Style
+
+from spake2 import SPAKE2_A
 
 def handleMessage(connection: socket.socket):
 	#Receive messages sent by the server, display to client.
@@ -19,15 +23,25 @@ def handleMessage(connection: socket.socket):
 				break
 
 		except Exception as e:
-			print(f'Error from server: {e}')
+			print(Fore.RED + f'Error from server: {e}')
 			connection.close()
 			break
+
+def passwordStorage() -> str:
+	serversPassword = SPAKE2_A(input('Enter servers password: '))
+	msgOut = s.start()
+	send(msgOut)
+	msgIn = receive()
+	key = s.finish(msgIn)
+
+
 
 def client():
 	#Main client process for server conn and message handling.
 	serverADDRESS = str(input('Enter host address:	'))
 	serverPORT = int(input('Enter port:	'))
 	userName = input('Enter name: ')
+	
 
 	try:
 		#Instance the socket and start conn
@@ -36,7 +50,7 @@ def client():
 		#Start thread for message handling
 		threading.Thread(target=handleMessage, args=[socketInstance]).start()
 
-		print(f'[*] {userName} [*] connected to chat.')
+		print(Fore.BLUE + f'[*] {userName} [*] connected to chat.')
 
 		#Take user input until quit then close conn.
 		msg = input('> ')
@@ -49,9 +63,13 @@ def client():
 			socketInstance.send(msg.encode())
 
 	except Exception as e:
-		print(f'Error connecting {e}')
+		print(Fore.RED + f'Error connecting {e}')
 		socketInstance.close()
 
 if __name__ == '__main__':
-	client()
+	if client():
+		try:
+			passwordStorage()
+		except Exception as e:
+			print(Fore.RED + f'An error occurred {e}')
 		

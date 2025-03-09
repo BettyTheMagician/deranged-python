@@ -1,7 +1,12 @@
 #Imports
 import socket, threading
+
 import time 
+
 from colorama import Fore, Back, Style
+
+from spake2 import SPAKE2_B
+
 
 #Global Variable to maintain user conn
 connections = []
@@ -58,6 +63,13 @@ def removeConnection(conn: socket.socket) -> None:
 		conn.close()
 		connections.remove(conn)
 
+def passwordStorage() -> None:
+	password = SPAKE2_B(input('Enter password (CLIENT WILL CONNECT USING THIS: )'))
+	msgOut = q.start()
+	send(msgOut)
+	msgIn = receive()
+	key = q.finish(msgIn)
+
 def server() -> None:
 	'''Main process, will receive clients and also create their threads,
 		to handle messages	
@@ -66,8 +78,6 @@ def server() -> None:
 	hostName = str(input('Enter host IP: '))
 	ListeningPORT = int(input('Enter port you wish you use:	'))
 	clients_Userinput = int(input('Enter how many clients you would like please: '))
-
-	
 	try:
 		socketInstance = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		socketInstance.bind((hostName, ListeningPORT))
@@ -82,7 +92,7 @@ def server() -> None:
 			socketConnection, address = socketInstance.accept()
 			#Append client to list
 			connections.append(socketConnection)
-			#Begin threading for clients connection and message handling and to send to others connections
+			#Begin threading for clients connection, message handling and to send to others connections
 			threading.Thread(target=handleUserConnection, args=[socketConnection, address]).start()
 
 	except Exception as e:
@@ -96,4 +106,8 @@ def server() -> None:
 		socketInstance.close()
 
 if __name__ == '__main__':
-	server()
+	if server():
+		try:
+			passwordStorage()
+		except Exception as e:
+			print(Fore.RED + f'An error occurred {e}')
